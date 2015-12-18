@@ -29,7 +29,7 @@ def game():
 
     pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
     pygame.init()
-    screen=pygame.display.set_mode((640,480)) # try out larger values and see what happens !
+    screen=pygame.display.set_mode((800,480)) # try out larger values and see what happens !
     #winstyle = 0  # |FULLSCREEN # Set the display mode
     BIRDSPEEDMAX = 200
     BIRDSPEEDMIN = 10
@@ -100,6 +100,8 @@ def game():
             dy = y - 240
             self.r = math.atan2(-dy,dx)
             angle = self.r/math.pi*180.0
+            if angle < 0:
+                angle = 360 + angle
             self.turnto(angle)
 
 
@@ -307,6 +309,11 @@ def game():
     #for x in range(0,screen.get_width()+1,20):
     for x in range(0,140,20):
         pygame.draw.line(background, (255,0,255), (x,0) ,(x,screen.get_height()), 1)
+    
+    BLUE=(0,0,255)
+    pygame.draw.line(background,BLUE,(320-2,240),(320+2,240),1)
+    pygame.draw.line(background,BLUE,(320,240-2),(320,240+2),1)
+ 
     background = background.convert()  # jpg can not have transparency
     screen.blit(background, (0,0))     # blit background on screen (overwriting all)
 
@@ -366,7 +373,7 @@ def game():
     mainloop = True
     FPS = 60                           # desired max. framerate in frames per second. 
 
-    BLUE=(0,0,255)
+   
     
     while mainloop:
         
@@ -456,8 +463,8 @@ def game():
         # ----------- clear, draw , update, flip -----------------  
         allgroup.clear(screen, background)
         allgroup.update(seconds)
-        pygame.draw.line(screen,BLUE,(320-2,240),(320+2,240),1)
-        pygame.draw.line(screen,BLUE,(320,240-2),(320,240+2),1)
+        # pygame.draw.line(screen,BLUE,(320-2,240),(320+2,240),1)
+        # pygame.draw.line(screen,BLUE,(320,240-2),(320,240+2),1)
 
         allgroup.draw(screen)           
         pygame.display.flip()         
