@@ -73,16 +73,16 @@ def game():
         """needle of an instruement"""
         def __init__(self):
             pygame.sprite.Sprite.__init__(self, self.groups)
-            self.image = pygame.Surface((200,9)) # created on the fly
+            self.image = pygame.Surface((400,9)) # created on the fly
             self.image.set_colorkey((0,0,0)) # black transparent
             
-            pygame.draw.polygon(self.image,(255,0,0),((0,0),(200,4),(0,8))) # red needle
+            pygame.draw.polygon(self.image,(255,0,0),((200,0),(400,4),(200,8))) # red needle
             
             self.image = self.image.convert_alpha()
             
             self.imageMaster = self.image
             self.rect = self.image.get_rect()
-            self.rect.center = (320+100, 240)
+            self.rect.center = (320, 240)
             
             self.angle = 0   # current direction
             self.target=0  # target direction
@@ -121,14 +121,15 @@ def game():
                 #self.angle = self.target
             
                 self.image = pygame.transform.rotozoom(self.imageMaster,self.angle,1.0)
-                dx = math.cos(self.angle*math.pi/180)*100
-                dy = math.sin(self.angle*math.pi/180)*100
+                # dx = math.cos(self.angle*math.pi/180)*100
+                # dy = math.sin(self.angle*math.pi/180)*100
                 self.rect = self.image.get_rect()
-                #self.rect.center=(320,240)
-                self.rect.center = (320+dx,240-dy)
+                self.rect.center=(320,240)
+                #self.rect.center = (320+dx,240-dy)
                 #self.dir = angle
                 #print(dx,dy,angle)
-                print(dx,dy,self.angle)
+                #print(dx,dy,self.angle)
+                print(self.angle)
 
     class Fragment(pygame.sprite.Sprite):
         """a fragment of an exploding Bird"""
