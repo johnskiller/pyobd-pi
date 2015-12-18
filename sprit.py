@@ -406,11 +406,13 @@ def game():
                     print("bottomlayer:", allgroup.get_bottom_layer())
                     print("layers;", allgroup.layers())
                 elif event.key == pygame.K_z:
-                    needle.turn(5) # toggle gravity class variable
+                    needle.turn(5) # turn 5 degree clock
                 elif event.key == pygame.K_x:
-                    needle.turn(-5) # toggle gravity class variable
-                      
-
+                    needle.turn(-5) # turn -5 degree
+                elif event.key == pygame.K_v:
+                    needle.turnto(270) # 270 degree, point down     
+                elif event.key == pygame.K_f:
+                    needle.turnto(90) # 90 degree, point up
         # create new Bird on mouseclick
         if pygame.mouse.get_pressed()[0]:
             #if not pygame.sprite.spritecollideany(hunter, birdgroup): 
