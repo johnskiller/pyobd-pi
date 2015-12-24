@@ -59,7 +59,7 @@ def game():
         except:
             raise(UserWarning, "no image files %s  in subfolder 'data'"%name)
 
-    class Gauge():
+    class Gauge(object):
         
         def __init__(self,name,unit,startpos=screen.get_rect().center,backname="C1_trans240x240.png"):
             #pygame.sprite.Sprite.__init__(self, self.groups)
@@ -71,12 +71,14 @@ def game():
             self.startpos = startpos
             mybackground = loadimage(backname)
             
-            
+            self.rect = mybackground.get_rect()
+            self.rect.topleft = startpos
+
             mybackground.blit(write(name,size=18,color=(200,200,200)),(100,40))
             mybackground.blit(write(unit,size=18,color=(200,200,200)),(100,180))
             background.blit(mybackground,startpos)
             background.blit(write("Gauge",color=(255,0,0)), (50,300))
-            pygame.display.flip()   
+               
  
         def getBackground(self):
             return self.background;
@@ -89,15 +91,9 @@ def game():
     
     class DigitGauge(Gauge):
         def __init__(self,name,unit,startpos=screen.get_rect().center,backname="C1_trans240x240.png"):
-            Gauge.__init__(self, name,unit,startpos,backname)
+            super(DigitGauge,self).__init__(name,unit,startpos,backname)
             self.text = DigitGaugeText(self)
-            #self.text.rect.center = self.rect.center
-            self.value = -9999
-            self.oldvalue = -9999
-            x,y=startpos
-            x+=120
-            y+=120
-            self.text.rect.center = (x,y)
+            self.text.rect.center = self.rect.center
         
     class DigitGaugeText(pygame.sprite.Sprite):
         def __init__(self,boss):
@@ -111,11 +107,6 @@ def game():
         def setValue(self,v):
             self.oldvalue = self.value
             self.value = v
-  
-            
-            
-
-            
             
         
         def update(self, seconds):
@@ -126,20 +117,18 @@ def game():
                 self.image=write("%.2f"%self.value,color=(250,250,250),size=48)
                 self.rect = self.image.get_rect();
                 x,y=self.boss.startpos
-                self.rect.center=(x + 120,y+120)
+                #print( self.boss.rect)
+                self.rect.center=self.boss.rect.center
                 
     class AnalogGauge(Gauge):
         def __init__(self,name,unit,startpos=screen.get_rect().center,backname="C1_trans240x240.png"):
-            Gauge.__init__(self,name,unit,startpos)
+            super(self.__class__,self).__init__(name,unit,startpos,backname)
             self.needle = Needle(self)
-            x,y = startpos
-            x+=120
-            y+=120
-            self.needle.rect.center = (x,y)
+
+            self.needle.rect.center = self.rect.center
             
 
-        def update(self, seconds):
-            pass
+
     
     class Needle(pygame.sprite.Sprite):
         """needle of an instruement"""
@@ -256,14 +245,15 @@ def game():
     Timebar._layer = 3
 
 
-    fps = DigitGauge("Perf","fps",(150,50))
+    fps = DigitGauge("Perf","fps",(50,50))
     
-    degree= DigitGauge("needle","degree",(500,200))
+    #speedo= AnalogGauge("speed","km/h",(300,10),backname="C1_trans480x480.png")
+    speedo= AnalogGauge("speed","km/h",(300,10),backname="C1_trans240x240.png")
     
     # at game start create a Needle
    
     #needle = Needle()
-    speedo = AnalogGauge("Speed","km/h",(150,200))
+    degree = DigitGauge("Needle","degree",(50,200))
     
     # set 
     millimax = 0
