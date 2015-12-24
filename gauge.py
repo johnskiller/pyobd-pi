@@ -47,19 +47,78 @@ def game():
     #define sprite groups
     birdgroup = pygame.sprite.LayeredUpdates()   
     bargroup = pygame.sprite.Group()
-    stuffgroup = pygame.sprite.Group()
+    gaugegroup = pygame.sprite.Group()
     needlegroup = pygame.sprite.Group()
-    fragmentgroup = pygame.sprite.Group()
     # LayeredUpdates instead of group to draw in correct order
     allgroup = pygame.sprite.LayeredUpdates() # more sophisticated than simple group
     
+    class Gauge(pygame.sprite.Sprite):
+        background = None
+        def __init__(self,name,unit):
+            pygame.sprite.Sprite.__init__(self, self.groups)
+            self.name = name
+            self.unit = unit
+            self.x,self.y=0,0
+            self.value = 9999
+            self.oldvalue = -9999
+
+        def getBackground(self):
+            return None;
+        
+        def setPos(x,y):
+            self.x,self.y=x,y
+
+        def setValue(self,v):
+            self.oldvalue = self.value
+            self.value = v
+
+        def write(self,msg="pygame is cool",size=48,color=(250,250,250)):
+            """write text into pygame surfaces"""
+            myfont = pygame.font.SysFont("None", size)
+            mytext = myfont.render(msg, True, color)
+            mytext = mytext.convert_alpha()
+            return mytext
     
-   
+    class AnalogGauge(Gauge):
+        def __init__(self,name,unit):
+            Gauge.__init__(self,name,unit)
+            self.needle = Needle()
+            try:
+                background = pygame.image.load(os.path.join("data","frame_C1.jpg"))
+            except:
+                raise(UserWarning, "no image files 'babytux.png' and 'frame_C1.jpg' in subfolder 'data'")
+
+    class DigitGauge(Gauge):
+        def __init__(self,name,unit):
+            Gauge.__init__(self,name,unit)
+            try:
+                self.background = pygame.image.load(os.path.join("data","frame_C1.jpg"))
+            except:
+                raise(UserWarning, "no image files 'babytux.png' and 'frame_S1.jpg' in subfolder 'data'")
+ 
+            
+            self.background.blit(self.write(name,size=18),(140,40))
+            self.background.blit(self.write(unit,size=18),(140,180))
+            
+            self.image = pygame.Surface((240,240))
+            self.image.blit(self.background,(-40,0))
+            self.rect = self.image.get_rect()
+            #self.rect.center = (200, 200)
+            
+        
+        def update(self, seconds):
+            #self.value = clock.get_fps()
+            if self.oldvalue != self.value:
+                #self.image.fill(pygame.Color(5,5,5), (120, 100, 120, 50))
+                self.image.blit(self.background,(-40,0))
+                self.image.blit(self.write("%.2f"%self.value),(80,100))
+                
     
     class Needle(pygame.sprite.Sprite):
         """needle of an instruement"""
         def __init__(self):
             pygame.sprite.Sprite.__init__(self, self.groups)
+            #self.boss = boss
             self.image = pygame.Surface((400,9)) # created on the fly
             self.image.set_colorkey((0,0,0)) # black transparent
             
@@ -167,12 +226,16 @@ def game():
     # (only allgroup is useful at the moment)
     Timebar.groups = bargroup, allgroup
     Needle.groups = needlegroup,allgroup
+    Gauge.groups = gaugegroup,allgroup
     #assign default layer for each sprite (lower numer is background)
     Needle._layer = 6
     Timebar._layer = 3
 
 
-
+    fps = DigitGauge("Perf","fps")
+    fps.rect.center=(200,200)
+    degree= DigitGauge("needle","degree")
+    degree.rect.center=(500,200)
     # at game start create a Needle
    
     needle = Needle()
@@ -192,6 +255,9 @@ def game():
         
         milliseconds = clock.tick(FPS)  # milliseconds passed since last frame
         Timebar(milliseconds)
+        fps.setValue(clock.get_fps())
+        degree.setValue(needle.angle)
+
         if milliseconds > millimax:
             millimax = milliseconds
         seconds = milliseconds / 1000.0 # seconds passed since last frame
