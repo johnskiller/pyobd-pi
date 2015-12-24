@@ -84,7 +84,7 @@ def game():
         def __init__(self,name,unit,startpos=screen.get_rect().center):
             Gauge.__init__(self,name,unit,startpos)
             try:
-                self.background = pygame.image.load(os.path.join("data","C1_240x240.png"))
+                self.background = pygame.image.load(os.path.join("data","C1_trans240x240.png"))
             except:
                 raise(UserWarning, "no image files 'babytux.png' and 'frame_S1.jpg' in subfolder 'data'")
  
