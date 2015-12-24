@@ -84,16 +84,16 @@ def game():
         def __init__(self,name,unit,startpos=screen.get_rect().center):
             Gauge.__init__(self,name,unit,startpos)
             try:
-                self.background = pygame.image.load(os.path.join("data","frame_C1.jpg"))
+                self.background = pygame.image.load(os.path.join("data","C1_240x240.png"))
             except:
                 raise(UserWarning, "no image files 'babytux.png' and 'frame_S1.jpg' in subfolder 'data'")
  
             
-            self.background.blit(self.write(name,size=18),(140,40))
-            self.background.blit(self.write(unit,size=18),(140,180))
+            self.background.blit(self.write(name,size=18),(100,40))
+            self.background.blit(self.write(unit,size=18),(100,180))
             
             self.image = pygame.Surface((240,240))
-            self.image.blit(self.background,(-40,0))
+            self.image.blit(self.background,(0,0))
             self.rect = self.image.get_rect()
             self.rect.center = startpos
 
@@ -103,7 +103,7 @@ def game():
             #self.value = clock.get_fps()
             if self.oldvalue != self.value:
                 #self.image.fill(pygame.Color(5,5,5), (120, 100, 120, 50))
-                self.image.blit(self.background,(-40,0))
+                self.image.blit(self.background,(0,0))
                 self.image.blit(self.write("%.2f"%self.value),(80,100))
                 
     class AnalogGauge(DigitGauge):
@@ -111,6 +111,11 @@ def game():
             DigitGauge.__init__(self,name,unit,startpos)
             self.needle = Needle(self)
             self.needle.rect.center = self.rect.center
+            try:
+                self.background = pygame.image.load(os.path.join("data","frame_C1.jpg"))
+            except:
+                raise(UserWarning, "no image files 'babytux.png' and 'frame_S1.jpg' in subfolder 'data'")
+ 
 
         def update(self, seconds):
             pass
