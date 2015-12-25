@@ -137,7 +137,7 @@ def game():
             self.boss = boss
             
             
-            self.image = pygame.image.load(os.path.join(".","200needle.png"))
+            self.image = pygame.image.load(os.path.join(".","380needle.png"))
             self.imageMaster = self.image
             self.rect = self.image.get_rect()
             #self.rect.center = (320, 240)
@@ -245,15 +245,15 @@ def game():
     Timebar._layer = 3
 
 
-    fps = DigitGauge("Perf","fps",(50,50))
+    fps = DigitGauge("Perf","fps",(50,0))
     
     #speedo= AnalogGauge("speed","km/h",(300,10),backname="C1_trans480x480.png")
-    speedo= AnalogGauge("speed","km/h",(300,10),backname="C1_trans240x240.png")
+    speedo= AnalogGauge("speed","km/h",(300,10),backname="C1_trans480x480.png")
     
     # at game start create a Needle
    
     #needle = Needle()
-    degree = DigitGauge("Needle","degree",(50,200))
+    degree = DigitGauge("Needle","degree",(50,240))
     
     # set 
     millimax = 0
