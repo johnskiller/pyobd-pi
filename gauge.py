@@ -37,98 +37,110 @@ def game():
     HITPOINTS = 100.0 
     FORCE_OF_GRAVITY = 9.81 # in pixel per second² .See http://en.wikipedia.org/wiki/Gravitational_acceleration
     print(pygame.ver)
-    def write(msg="pygame is cool"):
+    def write(msg="pygame is cool",size=32,color=(128,128,128)):
         """write text into pygame surfaces"""
-        myfont = pygame.font.SysFont("None", 32)
-        mytext = myfont.render(msg, True, (0,0,0))
+        myfont = pygame.font.SysFont("None", size)
+        mytext = myfont.render(msg, True, color)
         mytext = mytext.convert_alpha()
         return mytext
     
     #define sprite groups
-    birdgroup = pygame.sprite.LayeredUpdates()   
+    textgroup = pygame.sprite.LayeredUpdates()   
     bargroup = pygame.sprite.Group()
-    gaugegroup = pygame.sprite.Group()
-    needlegroup = pygame.sprite.Group()
+    #gaugegroup = pygame.sprite.Group()
+    needlegroup = pygame.sprite.LayeredUpdates()
     # LayeredUpdates instead of group to draw in correct order
     allgroup = pygame.sprite.LayeredUpdates() # more sophisticated than simple group
     
-    class Gauge(pygame.sprite.Sprite):
-        background = None
-        def __init__(self,name,unit):
-            pygame.sprite.Sprite.__init__(self, self.groups)
+    def loadimage(name):
+        try:
+            image = pygame.image.load(os.path.join("data",name))
+            return image
+        except:
+            raise(UserWarning, "no image files %s  in subfolder 'data'"%name)
+
+    class Gauge(object):
+        
+        def __init__(self,name,unit,startpos=screen.get_rect().center,backname="C1_trans240x240.png"):
+            #pygame.sprite.Sprite.__init__(self, self.groups)
             self.name = name
             self.unit = unit
             self.x,self.y=0,0
-            self.value = 9999
+            self.value = -9999
             self.oldvalue = -9999
+            self.startpos = startpos
+            mybackground = loadimage(backname)
+            
+            self.rect = mybackground.get_rect()
+            self.rect.topleft = startpos
 
+            mybackground.blit(write(name,size=18,color=(200,200,200)),(100,40))
+            mybackground.blit(write(unit,size=18,color=(200,200,200)),(100,180))
+            background.blit(mybackground,startpos)
+            background.blit(write("Gauge",color=(255,0,0)), (50,300))
+               
+ 
         def getBackground(self):
-            return None;
+            return self.background;
         
-        def setPos(x,y):
-            self.x,self.y=x,y
 
+        def setValue(self,v):
+            self.text.setValue(v)
+
+        
+    
+    class DigitGauge(Gauge):
+        def __init__(self,name,unit,startpos=screen.get_rect().center,backname="C1_trans240x240.png"):
+            super(DigitGauge,self).__init__(name,unit,startpos,backname)
+            self.text = DigitGaugeText(self)
+            self.text.rect.center = self.rect.center
+        
+    class DigitGaugeText(pygame.sprite.Sprite):
+        def __init__(self,boss):
+            pygame.sprite.Sprite.__init__(self, self.groups)
+            self.value = 0
+            self.oldvalue = -9999
+            self.image=write("%.2f"%self.value,color=(250,250,250),size=48)
+            self.rect = self.image.get_rect();
+            self.boss = boss
+            
         def setValue(self,v):
             self.oldvalue = self.value
             self.value = v
-
-        def write(self,msg="pygame is cool",size=48,color=(250,250,250)):
-            """write text into pygame surfaces"""
-            myfont = pygame.font.SysFont("None", size)
-            mytext = myfont.render(msg, True, color)
-            mytext = mytext.convert_alpha()
-            return mytext
-    
-    class AnalogGauge(Gauge):
-        def __init__(self,name,unit):
-            Gauge.__init__(self,name,unit)
-            self.needle = Needle()
-            try:
-                background = pygame.image.load(os.path.join("data","frame_C1.jpg"))
-            except:
-                raise(UserWarning, "no image files 'babytux.png' and 'frame_C1.jpg' in subfolder 'data'")
-
-    class DigitGauge(Gauge):
-        def __init__(self,name,unit):
-            Gauge.__init__(self,name,unit)
-            try:
-                self.background = pygame.image.load(os.path.join("data","frame_C1.jpg"))
-            except:
-                raise(UserWarning, "no image files 'babytux.png' and 'frame_S1.jpg' in subfolder 'data'")
- 
-            
-            self.background.blit(self.write(name,size=18),(140,40))
-            self.background.blit(self.write(unit,size=18),(140,180))
-            
-            self.image = pygame.Surface((240,240))
-            self.image.blit(self.background,(-40,0))
-            self.rect = self.image.get_rect()
-            #self.rect.center = (200, 200)
             
         
         def update(self, seconds):
             #self.value = clock.get_fps()
             if self.oldvalue != self.value:
                 #self.image.fill(pygame.Color(5,5,5), (120, 100, 120, 50))
-                self.image.blit(self.background,(-40,0))
-                self.image.blit(self.write("%.2f"%self.value),(80,100))
+                #self.image.blit(self.background,(0,0))
+                self.image=write("%.2f"%self.value,color=(250,250,250),size=48)
+                self.rect = self.image.get_rect();
+                x,y=self.boss.startpos
+                #print( self.boss.rect)
+                self.rect.center=self.boss.rect.center
                 
+    class AnalogGauge(Gauge):
+        def __init__(self,name,unit,startpos=screen.get_rect().center,backname="C1_trans240x240.png"):
+            super(self.__class__,self).__init__(name,unit,startpos,backname)
+            self.needle = Needle(self)
+
+            self.needle.rect.center = self.rect.center
+            
+
+
     
     class Needle(pygame.sprite.Sprite):
         """needle of an instruement"""
-        def __init__(self):
+        def __init__(self,boss):
             pygame.sprite.Sprite.__init__(self, self.groups)
-            #self.boss = boss
-            self.image = pygame.Surface((400,9)) # created on the fly
-            self.image.set_colorkey((0,0,0)) # black transparent
+            self.boss = boss
             
-            pygame.draw.polygon(self.image,(255,0,0),((200,0),(400,4),(200,8))) # red needle
             
-            self.image = self.image.convert_alpha()
-            
+            self.image = pygame.image.load(os.path.join(".","380needle.png"))
             self.imageMaster = self.image
             self.rect = self.image.get_rect()
-            self.rect.center = (320, 240)
+            #self.rect.center = (320, 240)
             
             self.angle = 0   # current direction
             self.target=0  # target direction
@@ -142,8 +154,8 @@ def game():
 
         def point_to(self,pos):
             x,y = pos
-            dx = x - 320
-            dy = y - 240
+            dx = x - self.rect.centerx
+            dy = y - self.rect.centery
             self.r = math.atan2(-dy,dx)
             angle = self.r/math.pi*180.0
             if angle < 0:
@@ -168,11 +180,12 @@ def game():
 
                 #self.angle = self.target
             
+
                 self.image = pygame.transform.rotozoom(self.imageMaster,self.angle,1.0)
                 # dx = math.cos(self.angle*math.pi/180)*100
                 # dy = math.sin(self.angle*math.pi/180)*100
                 self.rect = self.image.get_rect()
-                self.rect.center=(320,240)
+                self.rect.center=oldCenter
                 #self.rect.center = (320+dx,240-dy)
                 #self.dir = angle
                 #print(dx,dy,angle)
@@ -201,7 +214,7 @@ def game():
     
     #---------------  no class -----------
     background = pygame.Surface((screen.get_width(), screen.get_height()))
-    background.fill((255,255,255))     # fill white
+    background.blit(loadimage("back_carbon.png"),(0,0))
     background.blit(write("%s"%background.get_rect()),(150,0))
     background.blit(write("press left mouse button for more sprites."),(150,10))
     background.blit(write("press right mouse button to kill sprites."),(150,40))
@@ -220,28 +233,29 @@ def game():
     pygame.draw.line(background,BLUE,(320-2,240),(320+2,240),1)
     pygame.draw.line(background,BLUE,(320,240-2),(320,240+2),1)
  
-    background = background.convert()  # jpg can not have transparency
-    screen.blit(background, (0,0))     # blit background on screen (overwriting all)
-
+   
 
     #assign default groups to each sprite class
     # (only allgroup is useful at the moment)
     Timebar.groups = bargroup, allgroup
     Needle.groups = needlegroup,allgroup
-    Gauge.groups = gaugegroup,allgroup
+    DigitGaugeText.groups = textgroup,allgroup
     #assign default layer for each sprite (lower numer is background)
     Needle._layer = 6
+    DigitGaugeText._layer=4
     Timebar._layer = 3
 
 
-    fps = DigitGauge("Perf","fps")
-    fps.rect.center=(200,200)
-    degree= DigitGauge("needle","degree")
-    degree.rect.center=(500,200)
+    fps = DigitGauge("Perf","fps",(50,0))
+    
+    #speedo= AnalogGauge("speed","km/h",(300,10),backname="C1_trans480x480.png")
+    speedo= AnalogGauge("speed","km/h",(300,10),backname="C1_trans480x480.png")
+    
     # at game start create a Needle
    
-    needle = Needle()
-
+    #needle = Needle()
+    degree = DigitGauge("Needle","degree",(50,240))
+    
     # set 
     millimax = 0
     othergroup =  [] # important for good collision detection
@@ -251,14 +265,16 @@ def game():
     mainloop = True
     FPS = 60                           # desired max. framerate in frames per second. 
 
-   
+    background = background.convert()  # jpg can not have transparency
+    screen.blit(background, (0,0))     # blit background on screen (overwriting all)
+
     
     while mainloop:
         
         milliseconds = clock.tick(FPS)  # milliseconds passed since last frame
         Timebar(milliseconds)
         fps.setValue(clock.get_fps())
-        degree.setValue(needle.angle)
+        degree.setValue(speedo.needle.angle)
 
         if milliseconds > millimax:
             millimax = milliseconds
@@ -275,17 +291,17 @@ def game():
                     print("bottomlayer:", allgroup.get_bottom_layer())
                     print("layers;", allgroup.layers())
                 elif event.key == pygame.K_z:
-                    needle.turn(5) # turn 5 degree clock
+                    speedo.needle.turn(5) # turn 5 degree clock
                 elif event.key == pygame.K_x:
-                    needle.turn(-5) # turn -5 degree
+                    speedo.needle.turn(-5) # turn -5 degree
                 elif event.key == pygame.K_v:
-                    needle.turnto(270) # 270 degree, point down     
+                    speedo.needle.turnto(270) # 270 degree, point down     
                 elif event.key == pygame.K_f:
-                    needle.turnto(90) # 90 degree, point up
+                    speedo.needle.turnto(90) # 90 degree, point up
 
         # turn to mouse left click
         if pygame.mouse.get_pressed()[0]:
-            needle.point_to(pygame.mouse.get_pos())
+            speedo.needle.point_to(pygame.mouse.get_pos())
 
 
         pygame.display.set_caption("ms: %i max(ms): %i fps: %.2f "% (milliseconds, millimax, clock.get_fps(), ))
