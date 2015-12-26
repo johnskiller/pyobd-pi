@@ -30,7 +30,7 @@ def game():
     pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
     pygame.init()
     screen=pygame.display.set_mode((800,480)) # try out larger values and see what happens !
-    #winstyle = 0  # |FULLSCREEN # Set the display mode
+    winstyle = 0  # |FULLSCREEN # Set the display mode
     BIRDSPEEDMAX = 200
     BIRDSPEEDMIN = 10
     FRICTION =.999
@@ -202,12 +202,14 @@ def game():
     #---------------  no class -----------
     background = pygame.Surface((screen.get_width(), screen.get_height()))
     background.fill((255,255,255))     # fill white
+    background.blit(write("%s"%background.get_rect()),(150,0))
     background.blit(write("press left mouse button for more sprites."),(150,10))
     background.blit(write("press right mouse button to kill sprites."),(150,40))
     background.blit(write("press g to toggle gravity"),(150,70))
     background.blit(write("press b to toggle bad coding"),(150,100))
     background.blit(write("press c to toggle clever coding"), (150,130))
     background.blit(write("Press ESC to quit"), (150,160))
+	
 
     # paint vertical lines to measure passed time (Timebar)
     #for x in range(0,screen.get_width()+1,20):
